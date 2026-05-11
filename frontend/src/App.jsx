@@ -16,7 +16,7 @@ function App() {
       try {
 
         const response = await fetch(
-          "http://localhost:3000/usuarios"
+          "/usuarios"
         );
 
         const data = await response.json();
@@ -46,7 +46,7 @@ function App() {
       try {
 
         const response = await fetch(
-          "http://localhost:3000/clima"
+          "/clima"
         );
 
         const data = await response.json();
@@ -82,7 +82,7 @@ function App() {
         <ul className="space-y-6 text-gray-700 font-medium">
 
           <li className="bg-blue-100 p-3 rounded-xl text-blue-600">
-            🏠 Dashboard
+            🏠 Panel de control
           </li>
 
           <li>
@@ -98,7 +98,7 @@ function App() {
           </li>
 
           <li>
-            📋 Logs
+            📋 Registros
           </li>
 
           <li>
@@ -210,7 +210,7 @@ function App() {
             </h1>
 
             <p className="text-green-600 mt-4">
-              +15% vs ayer
+              +15% frente a ayer
             </p>
 
           </div>
@@ -233,7 +233,7 @@ function App() {
 
               <tr className="text-left border-b">
 
-                <th className="p-4">ID</th>
+                <th className="p-4">IDENTIFICACIÓN</th>
 
                 <th className="p-4">Nombre</th>
 
