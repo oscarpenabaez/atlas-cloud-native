@@ -6,7 +6,7 @@ function App() {
   const [clima, setClima] = useState(null);
 
   /* =========================
-     USUARIOS
+     CARGAR USUARIOS
   ========================= */
 
   useEffect(() => {
@@ -15,17 +15,31 @@ function App() {
 
       try {
 
-        const response = await fetch(
-          "/usuarios"
-        );
+        const response = await fetch("/usuarios");
 
         const data = await response.json();
 
-        setUsuarios(data);
+        console.log("USUARIOS:", data);
+
+        if (Array.isArray(data)) {
+
+          setUsuarios(data);
+
+        } else if (Array.isArray(data.usuarios)) {
+
+          setUsuarios(data.usuarios);
+
+        } else {
+
+          setUsuarios([]);
+
+        }
 
       } catch (error) {
 
         console.log(error);
+
+        setUsuarios([]);
 
       }
 
@@ -36,7 +50,7 @@ function App() {
   }, []);
 
   /* =========================
-     CLIMA
+     CARGAR CLIMA
   ========================= */
 
   useEffect(() => {
@@ -45,11 +59,11 @@ function App() {
 
       try {
 
-        const response = await fetch(
-          "/clima"
-        );
+        const response = await fetch("/clima");
 
         const data = await response.json();
+
+        console.log("CLIMA:", data);
 
         setClima(data);
 
@@ -218,7 +232,7 @@ function App() {
         </div>
 
         {/* =========================
-            TABLA USUARIOS
+            TABLA
         ========================= */}
 
         <div className="bg-white rounded-3xl shadow-md mt-10 p-8">
@@ -233,13 +247,21 @@ function App() {
 
               <tr className="text-left border-b">
 
-                <th className="p-4">IDENTIFICACIÓN</th>
+                <th className="p-4">
+                  IDENTIFICACIÓN
+                </th>
 
-                <th className="p-4">Nombre</th>
+                <th className="p-4">
+                  Nombre
+                </th>
 
-                <th className="p-4">Correo</th>
+                <th className="p-4">
+                  Correo
+                </th>
 
-                <th className="p-4">Estado</th>
+                <th className="p-4">
+                  Estado
+                </th>
 
               </tr>
 
@@ -248,6 +270,7 @@ function App() {
             <tbody>
 
               {
+                Array.isArray(usuarios) &&
                 usuarios.map((usuario) => (
 
                   <tr
