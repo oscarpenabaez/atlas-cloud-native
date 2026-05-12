@@ -7,8 +7,6 @@ function App() {
 
   const [usuarios, setUsuarios] = useState([]);
   const [clima, setClima] = useState(null);
-  const [ciudad, setCiudad] = useState("Bogota");
-  const [cargando, setCargando] = useState(false);
 
   // CONSULTAR USUARIOS
   useEffect(() => {
@@ -34,174 +32,394 @@ function App() {
   }, []);
 
   // CONSULTAR CLIMA
-  const consultarClima = async () => {
+  useEffect(() => {
+
+    fetch("/clima")
+      .then((res) => res.json())
+      .then((data) => setClima(data))
+      .catch((err) => console.error(err));
+
+  }, []);
+
+  // REGISTRAR CONSULTA PDF
+  const registrarConsulta = async (reporte) => {
 
     try {
 
-      setCargando(true);
-
-      const respuesta = await fetch(
-        `/clima?ciudad=${ciudad}`
-      );
-
-      const data = await respuesta.json();
-
-      setClima(data);
+      await fetch("/registrar-consulta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reporte,
+        }),
+      });
 
     } catch (error) {
 
       console.error(error);
 
-    } finally {
-
-      setCargando(false);
-
     }
 
   };
 
-  // CLIMA INICIAL
-  useEffect(() => {
-
-    consultarClima();
-
-  }, []);
-
   return (
 
-    <div style={{
-      padding: "30px",
-      fontFamily: "Arial",
-      backgroundColor: "#f4f7fb",
-      minHeight: "100vh"
-    }}>
+    <div
+      style={{
+        display: "flex",
+        backgroundColor: "#eef2f7",
+        minHeight: "100vh",
+        fontFamily: "Arial",
+      }}
+    >
 
-      <h1 style={{
-        color: "#1e293b",
-        fontSize: "50px"
-      }}>
-        ATLAS Nativo de la nube
-      </h1>
+      {/* SIDEBAR */}
 
-      <p style={{
-        fontSize: "20px",
-        color: "#64748b"
-      }}>
-        Plataforma financiera desplegada con arquitectura de microservicios
-      </p>
-
-      <hr />
-
-      <h2 style={{ marginTop: "40px" }}>
-        Consultar clima
-      </h2>
-
-      <input
-        type="text"
-        placeholder="Escriba una ciudad"
-        value={ciudad}
-        onChange={(e) => setCiudad(e.target.value)}
+      <div
         style={{
-          padding: "12px",
-          width: "250px",
-          marginRight: "10px",
-          borderRadius: "8px",
-          border: "1px solid #ccc"
-        }}
-      />
-
-      <button
-        onClick={consultarClima}
-        style={{
-          padding: "12px 20px",
-          backgroundColor: "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer"
+          width: "220px",
+          backgroundColor: "white",
+          padding: "30px 20px",
+          boxShadow: "2px 0px 10px rgba(0,0,0,0.05)",
         }}
       >
-        Consultar
-      </button>
 
-      {cargando && (
-        <p style={{ marginTop: "20px" }}>
-          Cargando clima...
-        </p>
-      )}
-
-      {clima && (
-
-        <div style={{
-          marginTop: "30px",
-          backgroundColor: "white",
-          padding: "25px",
-          borderRadius: "15px",
-          width: "300px",
-          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)"
-        }}>
-
-          <h2>{clima.ciudad}</h2>
-
-          <h1 style={{
+        <h1
+          style={{
             color: "#2563eb",
-            fontSize: "55px"
-          }}>
-            {clima.temperatura}°C
-          </h1>
+            marginBottom: "40px",
+          }}
+        >
+          ☁️ ATLAS
+        </h1>
 
-          <p>
-            💨 Viento: {clima.viento} km/h
-          </p>
+        <div style={{ marginBottom: "25px" }}>🏠 Panel de control</div>
+        <div style={{ marginBottom: "25px" }}>👥 Usuarios</div>
+        <div style={{ marginBottom: "25px" }}>🌦️ Clima</div>
+        <div style={{ marginBottom: "25px" }}>⚙️ Servicios</div>
+        <div style={{ marginBottom: "25px" }}>📋 Registros</div>
+        <div style={{ marginBottom: "25px" }}>🔐 Configuración</div>
+
+      </div>
+
+      {/* CONTENIDO */}
+
+      <div
+        style={{
+          flex: 1,
+          padding: "40px",
+        }}
+      >
+
+        <h1
+          style={{
+            fontSize: "60px",
+            color: "#1e293b",
+            marginBottom: "10px",
+          }}
+        >
+          ATLAS Nativo de la nube
+        </h1>
+
+        <p
+          style={{
+            color: "#64748b",
+            fontSize: "22px",
+          }}
+        >
+          Plataforma financiera desplegada con arquitectura de microservicios
+        </p>
+
+        {/* TARJETAS */}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "30px",
+            marginTop: "40px",
+            flexWrap: "wrap",
+          }}
+        >
+
+          {/* CLIMA */}
+
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "20px",
+              padding: "30px",
+              width: "220px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+            }}
+          >
+
+            <h2>🌦️ Clima Actual</h2>
+
+            {clima && (
+              <>
+                <p style={{ marginTop: "20px" }}>
+                  📍 {clima.ciudad}
+                </p>
+
+                <h1
+                  style={{
+                    color: "#2563eb",
+                    fontSize: "60px",
+                  }}
+                >
+                  {clima.temperatura} °C
+                </h1>
+
+                <p>
+                  💨 {clima.viento} km/h
+                </p>
+              </>
+            )}
+
+          </div>
+
+          {/* USUARIOS */}
+
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "20px",
+              padding: "30px",
+              width: "220px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+              textAlign: "center",
+            }}
+          >
+
+            <h2>👥 Usuarios</h2>
+
+            <h1
+              style={{
+                color: "#9333ea",
+                fontSize: "70px",
+              }}
+            >
+              {usuarios.length}
+            </h1>
+
+            <p>Usuarios registrados</p>
+
+          </div>
+
+          {/* API */}
+
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "20px",
+              padding: "30px",
+              width: "220px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+              textAlign: "center",
+            }}
+          >
+
+            <h2>🟢 Estado API</h2>
+
+            <h1
+              style={{
+                color: "#16a34a",
+                fontSize: "55px",
+              }}
+            >
+              EN LÍNEA
+            </h1>
+
+            <p>Microservicios activos</p>
+
+          </div>
+
+          {/* CONSULTAS */}
+
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "20px",
+              padding: "30px",
+              width: "220px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+              textAlign: "center",
+            }}
+          >
+
+            <h2>📊 Consultas API</h2>
+
+            <h1
+              style={{
+                color: "#f97316",
+                fontSize: "70px",
+              }}
+            >
+              24
+            </h1>
+
+            <p style={{ color: "#16a34a" }}>
+              +15% frente a ayer
+            </p>
+
+          </div>
 
         </div>
 
-      )}
+        {/* REPORTES */}
 
-      <hr style={{ marginTop: "50px" }} />
+        <div
+          style={{
+            marginTop: "50px",
+            backgroundColor: "white",
+            borderRadius: "20px",
+            padding: "30px",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+          }}
+        >
 
-      <h2>Usuarios registrados</h2>
+          <h1
+            style={{
+              marginBottom: "30px",
+            }}
+          >
+            📄 Reportes financieros
+          </h1>
 
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          marginTop: "20px",
-          backgroundColor: "white",
-          borderCollapse: "collapse",
-          width: "100%"
-        }}
-      >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
 
-        <thead>
+            <thead>
 
-          <tr>
+              <tr
+                style={{
+                  borderBottom: "1px solid #ddd",
+                }}
+              >
 
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Correo</th>
+                <th
+                  style={{
+                    textAlign: "left",
+                    padding: "15px",
+                  }}
+                >
+                  Reporte
+                </th>
 
-          </tr>
+                <th
+                  style={{
+                    textAlign: "left",
+                    padding: "15px",
+                  }}
+                >
+                  Acción
+                </th>
 
-        </thead>
+              </tr>
 
-        <tbody>
+            </thead>
 
-          {usuarios.map((usuario) => (
+            <tbody>
 
-            <tr key={usuario.id}>
+              {/* REPORTE 1 */}
 
-              <td>{usuario.id}</td>
-              <td>{usuario.nombre}</td>
-              <td>{usuario.correo}</td>
+              <tr>
 
-            </tr>
+                <td style={{ padding: "15px" }}>
+                  Balance General
+                </td>
 
-          ))}
+                <td style={{ padding: "15px" }}>
 
-        </tbody>
+                  <a
+                    href="/reportes/reporte1.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() =>
+                      registrarConsulta("reporte1.pdf")
+                    }
+                    style={{
+                      marginRight: "20px",
+                      color: "#2563eb",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Ver PDF
+                  </a>
 
-      </table>
+                  <a
+                    href="/reportes/reporte1.pdf"
+                    download
+                    style={{
+                      color: "#16a34a",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Descargar
+                  </a>
+
+                </td>
+
+              </tr>
+
+              {/* REPORTE 2 */}
+
+              <tr>
+
+                <td style={{ padding: "15px" }}>
+                  Flujo de Caja
+                </td>
+
+                <td style={{ padding: "15px" }}>
+
+                  <a
+                    href="/reportes/reporte2.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() =>
+                      registrarConsulta("reporte2.pdf")
+                    }
+                    style={{
+                      marginRight: "20px",
+                      color: "#2563eb",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Ver PDF
+                  </a>
+
+                  <a
+                    href="/reportes/reporte2.pdf"
+                    download
+                    style={{
+                      color: "#16a34a",
+                      textDecoration: "none",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Descargar
+                  </a>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
 
     </div>
 
