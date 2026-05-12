@@ -5,31 +5,7 @@ import "./App.css";
 
 function App() {
 
-  const [usuarios, setUsuarios] = useState([]);
   const [clima, setClima] = useState(null);
-
-  // CONSULTAR USUARIOS
-  useEffect(() => {
-
-    fetch("/usuarios")
-      .then((res) => res.json())
-      .then((data) => {
-
-        if (Array.isArray(data)) {
-          setUsuarios(data);
-        } else {
-          setUsuarios([]);
-        }
-
-      })
-      .catch((err) => {
-
-        console.error(err);
-        setUsuarios([]);
-
-      });
-
-  }, []);
 
   // CONSULTAR CLIMA
   useEffect(() => {
@@ -61,6 +37,32 @@ function App() {
       console.error(error);
 
     }
+
+  };
+
+  // GPS CELULAR
+  const obtenerUbicacion = () => {
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        alert(
+          `Latitud: ${position.coords.latitude}
+Longitud: ${position.coords.longitude}`
+        );
+
+      },
+
+      (error) => {
+
+        alert("No se pudo obtener la ubicación");
+
+        console.error(error);
+
+      }
+
+    );
 
   };
 
@@ -96,8 +98,8 @@ function App() {
         </h1>
 
         <div style={{ marginBottom: "25px" }}>🏠 Panel de control</div>
-        <div style={{ marginBottom: "25px" }}>👥 Usuarios</div>
         <div style={{ marginBottom: "25px" }}>🌦️ Clima</div>
+        <div style={{ marginBottom: "25px" }}>📍 GPS</div>
         <div style={{ marginBottom: "25px" }}>⚙️ Servicios</div>
         <div style={{ marginBottom: "25px" }}>📋 Registros</div>
         <div style={{ marginBottom: "25px" }}>🔐 Configuración</div>
@@ -180,34 +182,6 @@ function App() {
 
           </div>
 
-          {/* USUARIOS */}
-
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "20px",
-              padding: "30px",
-              width: "220px",
-              boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
-              textAlign: "center",
-            }}
-          >
-
-            <h2>👥 Usuarios</h2>
-
-            <h1
-              style={{
-                color: "#9333ea",
-                fontSize: "70px",
-              }}
-            >
-              {usuarios.length}
-            </h1>
-
-            <p>Usuarios registrados</p>
-
-          </div>
-
           {/* API */}
 
           <div
@@ -268,6 +242,47 @@ function App() {
 
         </div>
 
+        {/* GPS */}
+
+        <div
+          style={{
+            marginTop: "40px",
+            backgroundColor: "white",
+            borderRadius: "20px",
+            padding: "30px",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.08)",
+          }}
+        >
+
+          <h1>📍 Ubicación GPS</h1>
+
+          <p
+            style={{
+              marginTop: "15px",
+              color: "#64748b",
+            }}
+          >
+            Consulta la ubicación actual del dispositivo móvil en tiempo real.
+          </p>
+
+          <button
+            onClick={obtenerUbicacion}
+            style={{
+              marginTop: "20px",
+              padding: "15px 25px",
+              border: "none",
+              borderRadius: "10px",
+              backgroundColor: "#2563eb",
+              color: "white",
+              fontSize: "16px",
+              cursor: "pointer",
+            }}
+          >
+            Obtener ubicación
+          </button>
+
+        </div>
+
         {/* REPORTES */}
 
         <div
@@ -285,7 +300,7 @@ function App() {
               marginBottom: "30px",
             }}
           >
-            📄 Reportes financieros
+            📄 Informes financieros
           </h1>
 
           <table
@@ -309,7 +324,7 @@ function App() {
                     padding: "15px",
                   }}
                 >
-                  Reporte
+                  Informe
                 </th>
 
                 <th
