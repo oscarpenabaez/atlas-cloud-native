@@ -1,317 +1,207 @@
+// frontend/src/App.jsx
+
 import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
 
   const [usuarios, setUsuarios] = useState([]);
   const [clima, setClima] = useState(null);
+  const [ciudad, setCiudad] = useState("Bogota");
+  const [cargando, setCargando] = useState(false);
 
-  /* =========================
-     CARGAR USUARIOS
-  ========================= */
-
+  // CONSULTAR USUARIOS
   useEffect(() => {
 
-    async function cargarUsuarios() {
-
-      try {
-
-        const response = await fetch("/usuarios");
-
-        const data = await response.json();
-
-        console.log("USUARIOS:", data);
+    fetch("/usuarios")
+      .then((res) => res.json())
+      .then((data) => {
 
         if (Array.isArray(data)) {
-
           setUsuarios(data);
-
-        } else if (Array.isArray(data.usuarios)) {
-
-          setUsuarios(data.usuarios);
-
         } else {
-
           setUsuarios([]);
-
         }
 
-      } catch (error) {
+      })
+      .catch((err) => {
 
-        console.log(error);
-
+        console.error(err);
         setUsuarios([]);
 
-      }
-
-    }
-
-    cargarUsuarios();
+      });
 
   }, []);
 
-  /* =========================
-     CARGAR CLIMA
-  ========================= */
+  // CONSULTAR CLIMA
+  const consultarClima = async () => {
 
-  useEffect(() => {
+    try {
 
-    async function cargarClima() {
+      setCargando(true);
 
-      try {
+      const respuesta = await fetch(
+        `/clima?ciudad=${ciudad}`
+      );
 
-        const response = await fetch("/clima");
+      const data = await respuesta.json();
 
-        const data = await response.json();
+      setClima(data);
 
-        console.log("CLIMA:", data);
+    } catch (error) {
 
-        setClima(data);
+      console.error(error);
 
-      } catch (error) {
+    } finally {
 
-        console.log(error);
-
-      }
+      setCargando(false);
 
     }
 
-    cargarClima();
+  };
+
+  // CLIMA INICIAL
+  useEffect(() => {
+
+    consultarClima();
 
   }, []);
 
   return (
 
-    <div className="min-h-screen bg-slate-100 flex">
+    <div style={{
+      padding: "30px",
+      fontFamily: "Arial",
+      backgroundColor: "#f4f7fb",
+      minHeight: "100vh"
+    }}>
 
-      {/* =========================
-          SIDEBAR
-      ========================= */}
+      <h1 style={{
+        color: "#1e293b",
+        fontSize: "50px"
+      }}>
+        ATLAS Nativo de la nube
+      </h1>
 
-      <div className="w-64 bg-white shadow-lg p-6">
+      <p style={{
+        fontSize: "20px",
+        color: "#64748b"
+      }}>
+        Plataforma financiera desplegada con arquitectura de microservicios
+      </p>
 
-        <h1 className="text-4xl font-bold text-blue-600 mb-10">
-          ☁️ ATLAS
-        </h1>
+      <hr />
 
-        <ul className="space-y-6 text-gray-700 font-medium">
+      <h2 style={{ marginTop: "40px" }}>
+        Consultar clima
+      </h2>
 
-          <li className="bg-blue-100 p-3 rounded-xl text-blue-600">
-            🏠 Panel de control
-          </li>
+      <input
+        type="text"
+        placeholder="Escriba una ciudad"
+        value={ciudad}
+        onChange={(e) => setCiudad(e.target.value)}
+        style={{
+          padding: "12px",
+          width: "250px",
+          marginRight: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc"
+        }}
+      />
 
-          <li>
-            👥 Usuarios
-          </li>
+      <button
+        onClick={consultarClima}
+        style={{
+          padding: "12px 20px",
+          backgroundColor: "#2563eb",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer"
+        }}
+      >
+        Consultar
+      </button>
 
-          <li>
-            🌦️ Clima
-          </li>
-
-          <li>
-            ⚙️ Servicios
-          </li>
-
-          <li>
-            📋 Registros
-          </li>
-
-          <li>
-            🔐 Configuración
-          </li>
-
-        </ul>
-
-      </div>
-
-      {/* =========================
-          CONTENIDO
-      ========================= */}
-
-      <div className="flex-1 p-10">
-
-        <h1 className="text-6xl font-bold text-slate-800">
-          ATLAS Nativo de la nube
-        </h1>
-
-        <p className="text-gray-500 mt-3 mb-10 text-xl">
-          Plataforma financiera desplegada con arquitectura de microservicios
+      {cargando && (
+        <p style={{ marginTop: "20px" }}>
+          Cargando clima...
         </p>
+      )}
 
-        {/* =========================
-            TARJETAS
-        ========================= */}
+      {clima && (
 
-        <div className="grid grid-cols-4 gap-6">
+        <div style={{
+          marginTop: "30px",
+          backgroundColor: "white",
+          padding: "25px",
+          borderRadius: "15px",
+          width: "300px",
+          boxShadow: "0px 4px 10px rgba(0,0,0,0.1)"
+        }}>
 
-          {/* CLIMA */}
+          <h2>{clima.ciudad}</h2>
 
-          <div className="bg-white rounded-3xl shadow-md p-8">
+          <h1 style={{
+            color: "#2563eb",
+            fontSize: "55px"
+          }}>
+            {clima.temperatura}°C
+          </h1>
 
-            <h2 className="text-2xl font-bold mb-6">
-              🌦️ Clima Actual
-            </h2>
-
-            {
-              clima && (
-
-                <div className="space-y-3 text-lg">
-
-                  <p>
-                    📍 {clima.ciudad}
-                  </p>
-
-                  <p className="text-5xl font-bold text-blue-600">
-                    {clima.temperatura}°C
-                  </p>
-
-                  <p>
-                    💨 {clima.viento} km/h
-                  </p>
-
-                </div>
-
-              )
-            }
-
-          </div>
-
-          {/* USUARIOS */}
-
-          <div className="bg-white rounded-3xl shadow-md p-8 text-center">
-
-            <h2 className="text-2xl font-bold mb-6">
-              👥 Usuarios
-            </h2>
-
-            <h1 className="text-7xl font-bold text-purple-600">
-              {usuarios.length}
-            </h1>
-
-            <p className="text-gray-500 mt-4">
-              Usuarios registrados
-            </p>
-
-          </div>
-
-          {/* API */}
-
-          <div className="bg-white rounded-3xl shadow-md p-8 text-center">
-
-            <h2 className="text-2xl font-bold mb-6">
-              🟢 Estado API
-            </h2>
-
-            <h1 className="text-5xl font-bold text-green-600">
-              EN LÍNEA
-            </h1>
-
-            <p className="text-gray-500 mt-4">
-              Microservicios activos
-            </p>
-
-          </div>
-
-          {/* CONSULTAS */}
-
-          <div className="bg-white rounded-3xl shadow-md p-8 text-center">
-
-            <h2 className="text-2xl font-bold mb-6">
-              📊 Consultas API
-            </h2>
-
-            <h1 className="text-7xl font-bold text-orange-500">
-              24
-            </h1>
-
-            <p className="text-green-600 mt-4">
-              +15% frente a ayer
-            </p>
-
-          </div>
+          <p>
+            💨 Viento: {clima.viento} km/h
+          </p>
 
         </div>
 
-        {/* =========================
-            TABLA
-        ========================= */}
+      )}
 
-        <div className="bg-white rounded-3xl shadow-md mt-10 p-8">
+      <hr style={{ marginTop: "50px" }} />
 
-          <h2 className="text-3xl font-bold mb-6">
-            Usuarios registrados
-          </h2>
+      <h2>Usuarios registrados</h2>
 
-          <table className="w-full">
+      <table
+        border="1"
+        cellPadding="10"
+        style={{
+          marginTop: "20px",
+          backgroundColor: "white",
+          borderCollapse: "collapse",
+          width: "100%"
+        }}
+      >
 
-            <thead>
+        <thead>
 
-              <tr className="text-left border-b">
+          <tr>
 
-                <th className="p-4">
-                  IDENTIFICACIÓN
-                </th>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
 
-                <th className="p-4">
-                  Nombre
-                </th>
+          </tr>
 
-                <th className="p-4">
-                  Correo
-                </th>
+        </thead>
 
-                <th className="p-4">
-                  Estado
-                </th>
+        <tbody>
 
-              </tr>
+          {usuarios.map((usuario) => (
 
-            </thead>
+            <tr key={usuario.id}>
 
-            <tbody>
+              <td>{usuario.id}</td>
+              <td>{usuario.nombre}</td>
+              <td>{usuario.correo}</td>
 
-              {
-                Array.isArray(usuarios) &&
-                usuarios.map((usuario) => (
+            </tr>
 
-                  <tr
-                    key={usuario.id}
-                    className="border-b hover:bg-slate-50"
-                  >
+          ))}
 
-                    <td className="p-4">
-                      {usuario.id}
-                    </td>
+        </tbody>
 
-                    <td className="p-4 font-semibold">
-                      {usuario.nombre}
-                    </td>
-
-                    <td className="p-4">
-                      {usuario.correo}
-                    </td>
-
-                    <td className="p-4">
-
-                      <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full">
-
-                        Activo
-
-                      </span>
-
-                    </td>
-
-                  </tr>
-
-                ))
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
+      </table>
 
     </div>
 

@@ -1,125 +1,82 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
+// api-service/server.js
 
-const { Client } = require("pg");
+const express = require('express');
+const cors = require('cors');
+const { Pool } = require('pg');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-/* =========================
-   CONEXIÓN POSTGRESQL
-========================= */
-
-const client = new Client({
-    host: "database",
-    user: "atlas",
-    password: "atlas123",
-    database: "atlasdb",
-    port: 5432,
+const pool = new Pool({
+  user: 'postgres',
+  host: 'atlas-db',
+  database: 'atlasdb',
+  password: 'postgres',
+  port: 5432,
 });
 
-client.connect()
-    .then(() => {
-        console.log("Conectado a PostgreSQL 🚀");
-    })
-    .catch((err) => {
-        console.error("Error PostgreSQL:", err);
+// RUTA USUARIOS
+app.get('/usuarios', async (req, res) => {
+
+  try {
+
+    const resultado = await pool.query(
+      'SELECT * FROM usuarios ORDER BY id ASC'
+    );
+
+    res.json(resultado.rows);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: 'Error obteniendo usuarios'
     });
 
-/* =========================
-   ENDPOINT PRINCIPAL
-========================= */
-
-app.get("/", async (req, res) => {
-
-    try {
-
-        const result = await client.query("SELECT NOW()");
-
-        res.json({
-            message: "API funcionando correctamente 🚀",
-            database: "PostgreSQL conectado",
-            time: result.rows[0]
-        });
-
-    } catch (error) {
-
-        res.json({
-            error: error.message
-        });
-
-    }
+  }
 
 });
 
-/* =========================
-   USUARIOS
-========================= */
+// RUTA CLIMA DINÁMICA
+app.get('/clima', async (req, res) => {
 
-app.get("/usuarios", async (req, res) => {
+  try {
 
-    try {
+    const ciudad = req.query.ciudad || 'Bogota';
 
-        const result = await client.query(
-            "SELECT * FROM usuarios"
-        );
+    const respuesta = await fetch(
+      `https://wttr.in/${ciudad}?format=j1`
+    );
 
-        res.json(result.rows);
+    const data = await respuesta.json();
 
-    } catch (error) {
+    res.json({
+      ciudad: ciudad,
+      temperatura: data.current_condition[0].temp_C,
+      viento: data.current_condition[0].windspeedKmph
+    });
 
-        res.json({
-            error: error.message
-        });
+  } catch (error) {
 
-    }
+    console.error(error);
 
-});
+    res.status(500).json({
+      error: 'Error consultando clima'
+    });
 
-/* =========================
-   CLIMA EN TIEMPO REAL
-========================= */
-
-app.get("/clima", async (req, res) => {
-
-    try {
-
-        const response = await axios.get(
-            "https://api.open-meteo.com/v1/forecast?latitude=4.71&longitude=-74.07&current_weather=true"
-        );
-
-        const clima = response.data.current_weather;
-
-        res.json({
-
-            ciudad: "Bogotá",
-
-            temperatura: clima.temperature,
-
-            viento: clima.windspeed,
-
-            clima: clima.weathercode,
-            hora: clima.time
-
-        });
-
-    } catch (error) {
-
-        res.json({
-            error: error.message
-        });
-
-    }
+  }
 
 });
 
-/* =========================
-   SERVIDOR
-========================= */
+const PORT = 3000;
 
-app.listen(3000, () => {
-    console.log("API ejecutándose en puerto 3000 🚀");
+app.listen(PORT, () => {
+
+  console.log(
+    `API funcionando en puerto ${PORT}`
+  );
+
 });
